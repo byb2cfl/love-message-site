@@ -1,333 +1,388 @@
-// 配置参数
-const MAX_WINDOWS = 520; // 修改为520个窗口
-const CREATION_INTERVAL = 100; // 毫秒
-const DURATION = 90000; // 90秒
-const IMAGE_INTERVAL = 5000; // 图片切换间隔
-const IMAGE_FADE_DURATION = 1000; // 图片渐变时间
+// 全局变量
+let windows = [];
+let displayedImages = [];
+let imageElements = [];
+let imageTimeout;
+let isMusicPlaying = false;
+let endTimeout;
 
-// 路径配置
-const IMAGE_PATH = 'images/';
-const MAX_IMAGES = 25; // 修改为25张图片
-
-// 表白内容
-const messages = [
-    "风风，你是我生命中最美的风景~",
-    "风风，每一天因你而精彩💖",
-    "风风，我爱你比昨天多一点，比明天少一点~",
-    "风风，你是我心动的理由✨",
-    "风风，余生请多指教~",
-    "风风，遇见你是我最大的幸运~",
-    "风风，我的心只属于你💕",
-    "风风，想和你一起看遍所有风景~",
-    "风风，你是我的阳光，温暖我的心~",
-    "风风，有你的日子就是天堂~",
-    "风风，我喜欢你，像风走了八千里，不问归期~",
-    "风风，你是我藏在星星里的浪漫~",
-    "风风，一想到你，我就很开心~",
-    "风风，愿我们的爱情像星星一样永恒~",
-    "风风，你是我生命中最重要的人~",
-    "风风，和你在一起的每一刻都很珍贵~",
-    "风风，我愿意陪你到世界尽头~",
-    "风风，你是我的快乐源泉~",
-    "风风，我对你的爱无法用言语表达~",
-    "风风，你是我最想共度一生的人~",
-    "风风，每一天爱你多一点~",
-    "风风，你是我的小确幸~",
-    "风风，有你在，一切都很美好~",
-    "风风，你是我眼中最美的星星~",
-    "风风，我想和你一起慢慢变老~",
-    "风风，你的笑容是我最大的幸福~",
-    "风风，你是我生命中的奇迹~",
-    "风风，我爱你，从过去到未来~",
-    "风风，你是我每天醒来的动力~",
-    "风风，和你在一起，时间过得太快~",
-    "风风，你是我的唯一~",
-    "风风，我对你的爱永不停息~",
-    "风风，你填满了我的心~",
-    "风风，你是我最甜蜜的负担~",
-    "风风，我会一直守护你~",
-    "风风，你的存在让世界更美好~",
-    "风风，我想和你创造更多回忆~",
-    "风风，你是我的命中注定~",
-    "风风，我喜欢你的一切~",
-    "风风，爱你到永远~",
-    "风风，你是我生命中的阳光~",
-    "风风，我想和你一起看日出日落~",
-    "风风，你的拥抱是最温暖的港湾~",
-    "风风，我会珍惜我们的每一刻~",
-    "风风，你是我最大的幸福~",
-    "风风，我对你的爱如潮水般涌来~",
-    "风风，和你在一起是我做过最正确的决定~",
-    "风风，愿我们的爱情永远甜蜜~",
-    "风风，谢谢你出现在我的生命里~",
-    "风风，我想和你走过四季，看尽繁华~"
-];
-
-// 粉色系配色
+// 粉色背景数组
 const bgPinks = [
-    'rgba(255, 182, 193, 0.9)', // 浅粉色
-    'rgba(255, 105, 180, 0.9)',  // 热粉色
-    'rgba(255, 192, 203, 0.9)',  // 粉色
-    'rgba(255, 20, 147, 0.9)',   // 深粉色
-    'rgba(255, 130, 180, 0.9)',  // 浅紫红色
-    'rgba(233, 150, 122, 0.9)',  // 秘鲁色
-    'rgba(255, 160, 122, 0.9)',  // 浅珊瑚色
-    'rgba(255, 99, 71, 0.9)',    // 番茄色
-    'rgba(255, 69, 0, 0.9)',     // 红橙色
-    'rgba(255, 215, 0, 0.9)',    // 金色
-    'rgba(255, 182, 193, 0.9)',  // 浅粉色
-    'rgba(255, 105, 180, 0.9)',  // 热粉色
-    'rgba(255, 192, 203, 0.9)',  // 粉色
-    'rgba(255, 20, 147, 0.9)',   // 深粉色
-    'rgba(255, 130, 180, 0.9)'   // 浅紫红色
+    'rgba(255, 182, 193, 0.9)', 'rgba(255, 105, 180, 0.9)', 'rgba(255, 192, 203, 0.9)',
+    'rgba(255, 228, 225, 0.9)', 'rgba(255, 218, 185, 0.9)', 'rgba(255, 174, 185, 0.9)',
+    'rgba(255, 148, 172, 0.9)', 'rgba(255, 135, 162, 0.9)', 'rgba(255, 112, 152, 0.9)',
+    'rgba(255, 90, 145, 0.9)', 'rgba(255, 70, 138, 0.9)', 'rgba(255, 50, 131, 0.9)',
+    'rgba(248, 131, 121, 0.9)', 'rgba(252, 165, 165, 0.9)', 'rgba(251, 207, 232, 0.9)'
 ];
 
+// 粉色文字数组
 const textPinks = [
-    '#ffffff',  // 白色
-    '#ffe4e1',  // 薄雾玫瑰色
-    '#fff0f5',  // 淡紫红
-    '#ffc0cb',  // 粉色
-    '#ff69b4',  // 热粉色
-    '#ff1493',  // 深粉色
-    '#db7093',  // 苍白紫罗兰红色
-    '#c71585',  // 中紫罗兰红色
-    '#ff85a2',  // 浅粉红
-    '#ff7782'   // 亮红色
+    '#ff1493', '#ff69b4', '#db7093', '#ff69b4', '#ff1493',
+    '#c71585', '#ff00ff', '#ff69b4', '#db7093', '#ff69b4'
 ];
 
-let messageWindows = [];
-let displayedImages = []; // 新增：跟踪已显示的图片
-let isRunning = false;
-let imageIntervalId = null;
-let creationIntervalId = null;
+// 可爱表白内容（50条）
+const loveMessages = [
+    '风风，你是我心里最亮的星✨',
+    '风风，今天的你也超可爱的呢！',
+    '风风，见到你就开心到冒泡～',
+    '风风，我喜欢你，超喜欢的那种！',
+    '风风，你一笑，我的世界都亮了☀️',
+    '风风，想和你一起看遍所有风景',
+    '风风，你是我的心动信号💕',
+    '风风，和你在一起的时光最珍贵',
+    '风风，你的眼睛里有星星哦',
+    '风风，每天想你一千遍～',
+    '风风，你是我藏在心里的糖🍬',
+    '风风，遇见你是最好的幸运',
+    '风风，想把全世界最好的都给你',
+    '风风，我超喜欢你的！',
+    '风风，你是我的小确幸',
+    '风风，和你聊天就是最幸福的事',
+    '风风，你好呀，我的心动女孩',
+    '风风，你的笑容治愈了一切',
+    '风风，今天也很想你呢',
+    '风风，你是我生命中的小太阳',
+    '风风，喜欢你没有理由～',
+    '风风，你是我的专属天使',
+    '风风，想一直牵着你的手走下去',
+    '风风，你是我每天的快乐源泉',
+    '风风，遇见你，我很幸运',
+    '风风，你让我相信了童话',
+    '风风，想和你一起看日出日落',
+    '风风，你是我的唯一',
+    '风风，喜欢你的一切',
+    '风风，你的存在让世界更美好',
+    '风风，我想你啦～',
+    '风风，你是我的心动男孩',
+    '风风，和你在一起时间过得好快',
+    '风风，你是我不变的偏爱',
+    '风风，想和你一起慢慢变老',
+    '风风，你是我生命中的礼物',
+    '风风，每一天都更喜欢你一点',
+    '风风，你的声音好好听',
+    '风风，你是我的命中注定',
+    '风风，和你一起吃的饭特别香',
+    '风风，你是我的快乐星球',
+    '风风，喜欢看你认真的样子',
+    '风风，你是我唯一的例外',
+    '风风，想和你一起去很多地方',
+    '风风，你一笑，我就醉了',
+    '风风，我的心只为你跳动',
+    '风风，你是我藏不住的喜欢',
+    '风风，和你在一起就是最甜的事',
+    '风风，你是我的星光',
+    '风风，我喜欢你，从一而终'  
+];
 
-// 获取随机位置
-function getRandomPosition(element) {
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
-    const elementWidth = element.offsetWidth;
-    const elementHeight = element.offsetHeight;
-    
-    const x = Math.floor(Math.random() * (windowWidth - elementWidth));
-    const y = Math.floor(Math.random() * (windowHeight - elementHeight));
-    
-    return { x, y };
+// 初始化函数
+function init() {
+    const startButton = document.getElementById('startButton');
+    startButton.addEventListener('click', start);
 }
 
-// 创建消息窗口
-function createLoveMessage() {
-    if (messageWindows.length >= MAX_WINDOWS) {
-        clearInterval(creationIntervalId);
-        return;
+// 开始动画
+function start() {
+    // 隐藏开始界面
+    document.getElementById('startContainer').style.display = 'none';
+    
+    // 播放音乐
+    playMusic();
+    
+    // 创建窗口
+    createWindowsContinually();
+    
+    // 显示图片
+    showImagesSequentially();
+    
+    // 90秒后清理
+    endTimeout = setTimeout(() => {
+        cleanup();
+    }, 90000);
+}
+
+// 播放音乐
+function playMusic() {
+    const music = document.getElementById('backgroundMusic');
+    
+    // 尝试播放音乐
+    music.play()
+        .then(() => {
+            isMusicPlaying = true;
+            console.log('音乐播放成功');
+        })
+        .catch(error => {
+            console.log('音乐播放失败，请尝试点击页面后再播放:', error);
+            // 添加备用播放方式，在用户交互时播放
+            document.addEventListener('click', tryPlayMusicAgain, { once: true });
+        });
+}
+
+// 再次尝试播放音乐
+function tryPlayMusicAgain() {
+    if (!isMusicPlaying) {
+        const music = document.getElementById('backgroundMusic');
+        music.play().then(() => {
+            isMusicPlaying = true;
+            console.log('音乐播放成功');
+        }).catch(error => {
+            console.log('音乐仍然无法播放:', error);
+        });
     }
+}
+
+// 随机创建窗口
+function createWindowsContinually() {
+    let windowCount = 0;
+    const maxWindows = 520; // 窗口数量限制为520个
     
-    const div = document.createElement('div');
-    div.className = 'love-message';
-    
-    // 随机选择消息
-    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    div.textContent = randomMessage;
-    
-    // 随机背景色和文字颜色
-    div.style.backgroundColor = bgPinks[Math.floor(Math.random() * bgPinks.length)];
-    div.style.color = textPinks[Math.floor(Math.random() * textPinks.length)];
+    const createInterval = setInterval(() => {
+        if (windowCount < maxWindows) {
+            createWindow();
+            windowCount++;
+        } else {
+            clearInterval(createInterval);
+        }
+    }, 100); // 每100毫秒创建一个窗口
+}
+
+// 创建单个窗口
+function createWindow() {
+    const window = document.createElement('div');
+    window.className = 'love-window';
     
     // 随机大小
-    const size = Math.floor(Math.random() * 20) + 14;
-    div.style.fontSize = `${size}px`;
+    const width = Math.floor(Math.random() * 150) + 100;
+    const height = Math.floor(Math.random() * 80) + 50;
+    window.style.width = `${width}px`;
     
-    // 随机宽度
-    const width = Math.floor(Math.random() * 100) + 150;
-    div.style.maxWidth = `${width}px`;
+    // 随机背景色和文字色
+    const bgColor = bgPinks[Math.floor(Math.random() * bgPinks.length)];
+    const textColor = textPinks[Math.floor(Math.random() * textPinks.length)];
+    window.style.backgroundColor = bgColor;
+    window.style.color = textColor;
     
-    document.body.appendChild(div);
+    // 随机位置
+    const maxX = window.innerWidth - width;
+    const maxY = window.innerHeight - height;
+    const x = Math.floor(Math.random() * maxX);
+    const y = Math.floor(Math.random() * maxY);
+    window.style.left = `${x}px`;
+    window.style.top = `${y}px`;
     
-    // 设置随机位置
-    const position = getRandomPosition(div);
-    div.style.left = `${position.x}px`;
-    div.style.top = `${position.y}px`;
+    // 随机文字
+    const message = loveMessages[Math.floor(Math.random() * loveMessages.length)];
+    window.textContent = message;
     
-    // 设置随机动画延迟
-    div.style.animationDelay = `${Math.random() * 2}s`;
+    // 随机字体大小
+    const fontSize = Math.floor(Math.random() * 4) + 14;
+    window.style.fontSize = `${fontSize}px`;
     
-    messageWindows.push(div);
+    // 添加到页面
+    document.body.appendChild(window);
+    windows.push(window);
     
-    // 随机移动效果
-    moveRandomly(div);
+    // 添加动画效果
+    animateWindow(window, x, y);
 }
 
-// 随机移动元素
-function moveRandomly(element) {
-    const move = () => {
-        if (!element.parentNode) return;
+// 窗口动画
+function animateWindow(window, startX, startY) {
+    const speedX = (Math.random() - 0.5) * 2;
+    const speedY = (Math.random() - 0.5) * 2;
+    
+    function move() {
+        const currentX = parseFloat(window.style.left);
+        const currentY = parseFloat(window.style.top);
+        const width = window.offsetWidth;
+        const height = window.offsetHeight;
         
-        const position = getRandomPosition(element);
-        const duration = Math.floor(Math.random() * 5000) + 3000;
+        // 边界检测
+        let newX = currentX + speedX;
+        let newY = currentY + speedY;
         
-        element.style.transition = `left ${duration}ms ease, top ${duration}ms ease`;
-        element.style.left = `${position.x}px`;
-        element.style.top = `${position.y}px`;
+        if (newX < 0 || newX > window.innerWidth - width) {
+            // 反转水平方向
+            newX = Math.max(0, Math.min(newX, window.innerWidth - width));
+        }
         
-        setTimeout(move, duration);
-    };
+        if (newY < 0 || newY > window.innerHeight - height) {
+            // 反转垂直方向
+            newY = Math.max(0, Math.min(newY, window.innerHeight - height));
+        }
+        
+        window.style.left = `${newX}px`;
+        window.style.top = `${newY}px`;
+        
+        requestAnimationFrame(move);
+    }
     
     move();
 }
 
-// 显示图片（修改版：不重复随机显示）
-function showImage() {
-    // 如果所有图片都已显示过，则重置显示历史
-    if (displayedImages.length >= MAX_IMAGES) {
+// 顺序显示图片
+function showImagesSequentially() {
+    if (displayedImages.length >= 25) {
+        // 重置已显示图片数组
         displayedImages = [];
     }
     
-    // 从所有图片中排除已显示的图片，得到可选图片列表
-    const availableImages = [];
-    for (let i = 1; i <= MAX_IMAGES; i++) {
+    // 生成未显示的图片索引
+    let availableImages = [];
+    for (let i = 1; i <= 25; i++) {
         if (!displayedImages.includes(i)) {
             availableImages.push(i);
         }
     }
     
-    // 随机选择一张未显示的图片
-    const randomIndex = Math.floor(Math.random() * availableImages.length);
-    const selectedImageIndex = availableImages[randomIndex];
-    
-    // 将选择的图片添加到已显示列表
-    displayedImages.push(selectedImageIndex);
-    
-    // 移除旧图片
-    const oldImageContainer = document.querySelector('.image-container');
-    if (oldImageContainer) {
-        oldImageContainer.style.opacity = '0';
-        setTimeout(() => {
-            if (oldImageContainer.parentNode) {
-                oldImageContainer.parentNode.removeChild(oldImageContainer);
-            }
-        }, IMAGE_FADE_DURATION);
+    if (availableImages.length === 0) {
+        // 所有图片都显示过了，重置
+        displayedImages = [];
+        availableImages = Array.from({length: 25}, (_, i) => i + 1);
     }
     
-    // 创建新图片
-    const imageContainer = document.createElement('div');
-    imageContainer.className = 'image-container';
-    imageContainer.style.opacity = '0';
+    // 随机选择一张未显示的图片
+    const randomIndex = Math.floor(Math.random() * availableImages.length);
+    const imageNum = availableImages[randomIndex];
+    displayedImages.push(imageNum);
     
+    // 创建图片容器
+    const container = document.createElement('div');
+    container.className = 'image-container';
+    
+    // 随机位置 - 不再在正中间
+    const containerWidth = 150; // 图片容器宽度
+    const containerHeight = 150; // 图片容器高度
+    const maxX = window.innerWidth - containerWidth;
+    const maxY = window.innerHeight - containerHeight;
+    
+    // 避免在正中间区域出现
+    let x, y;
+    do {
+        x = Math.floor(Math.random() * maxX);
+        y = Math.floor(Math.random() * maxY);
+    } while (
+        Math.abs(x - (window.innerWidth - containerWidth) / 2) < 100 && 
+        Math.abs(y - (window.innerHeight - containerHeight) / 2) < 100
+    );
+    
+    container.style.left = `${x}px`;
+    container.style.top = `${y}px`;
+    container.style.opacity = '0';
+    
+    // 创建图片元素
     const img = document.createElement('img');
-    img.src = `${IMAGE_PATH}${selectedImageIndex}.jpg`;
-    img.alt = `风风的照片 ${selectedImageIndex}`;
+    img.src = `images/${imageNum}.jpg`;
+    img.alt = `Love image ${imageNum}`;
     
+    // 图片加载完成后显示
     img.onload = () => {
-        document.body.appendChild(imageContainer);
-        // 延迟一点时间再显示，确保DOM已更新
+        container.appendChild(img);
+        document.body.appendChild(container);
+        imageElements.push(container);
+        
+        // 淡入效果
         setTimeout(() => {
-            imageContainer.style.opacity = '1';
-        }, 10);
+            container.style.opacity = '1';
+        }, 100);
+        
+        // 2.5秒后开始淡出（之前是3秒，现在提前开始淡出）
+        setTimeout(() => {
+            fadeOutImage(container);
+        }, 2500);
     };
     
-    imageContainer.appendChild(img);
-    
-    // 设置3秒后开始淡出
-    setTimeout(() => {
-        if (imageContainer.parentNode) {
-            imageContainer.style.opacity = '0';
-            setTimeout(() => {
-                if (imageContainer.parentNode) {
-                    imageContainer.parentNode.removeChild(imageContainer);
-                }
-            }, IMAGE_FADE_DURATION);
+    // 图片加载失败处理
+    img.onerror = () => {
+        console.log(`图片加载失败: images/${imageNum}.jpg`);
+        // 移除失败的索引，继续下一张
+        const index = displayedImages.indexOf(imageNum);
+        if (index > -1) {
+            displayedImages.splice(index, 1);
         }
-    }, 3000);
-}
-
-// 播放音乐
-function playMusic() {
-    const music = document.getElementById('background-music');
-    music.volume = 0.3; // 设置音量为30%
-    music.play().catch(error => {
-        console.log('音乐播放失败:', error);
-        // 在用户交互后重试播放
-        setTimeout(() => {
-            music.play().catch(e => console.log('重试播放失败:', e));
-        }, 1000);
-    });
-}
-
-// 停止音乐
-function stopMusic() {
-    const music = document.getElementById('background-music');
-    music.pause();
-    music.currentTime = 0;
-}
-
-// 清理所有窗口
-function cleanup() {
-    clearInterval(creationIntervalId);
-    clearInterval(imageIntervalId);
+    };
     
-    // 移除所有消息窗口
-    messageWindows.forEach(window => {
+    // 设置下一张图片出现的时间 - 当前一张快消失时（2秒后，而不是之前的3-7秒）
+    imageTimeout = setTimeout(showImagesSequentially, 2000);
+}
+
+// 图片淡出效果
+function fadeOutImage(container) {
+    let opacity = 1;
+    const fadeInterval = setInterval(() => {
+        opacity -= 0.05;
+        container.style.opacity = opacity.toString();
+        
+        if (opacity <= 0) {
+            clearInterval(fadeInterval);
+            // 移除元素
+            if (container.parentNode) {
+                container.parentNode.removeChild(container);
+            }
+            // 从数组中移除
+            const index = imageElements.indexOf(container);
+            if (index > -1) {
+                imageElements.splice(index, 1);
+            }
+        }
+    }, 50);
+}
+
+// 清理函数
+function cleanup() {
+    // 停止创建新窗口
+    clearTimeout(imageTimeout);
+    clearTimeout(endTimeout);
+    
+    // 移除所有窗口
+    windows.forEach(window => {
         if (window.parentNode) {
             window.parentNode.removeChild(window);
         }
     });
-    messageWindows = [];
+    windows = [];
     
-    // 重置已显示图片列表
-    displayedImages = [];
-    
-    // 移除图片
-    const imageContainer = document.querySelector('.image-container');
-    if (imageContainer && imageContainer.parentNode) {
-        imageContainer.parentNode.removeChild(imageContainer);
-    }
+    // 移除所有图片
+    imageElements.forEach(img => {
+        if (img.parentNode) {
+            img.parentNode.removeChild(img);
+        }
+    });
+    imageElements = [];
     
     // 停止音乐
-    stopMusic();
-    
-    // 显示开始屏幕
-    document.getElementById('start-screen').style.display = 'flex';
-    
-    isRunning = false;
-}
-
-// 开始效果
-function startEffect() {
-    if (isRunning) return;
-    
-    isRunning = true;
-    
-    // 隐藏开始屏幕
-    document.getElementById('start-screen').style.display = 'none';
-    
-    // 播放音乐
-    playMusic();
-    
-    // 开始创建消息窗口
-    creationIntervalId = setInterval(createLoveMessage, CREATION_INTERVAL);
-    
-    // 开始显示图片
-    showImage(); // 立即显示第一张
-    imageIntervalId = setInterval(showImage, IMAGE_INTERVAL);
-    
-    // 设置定时清理
-    setTimeout(cleanup, DURATION);
-}
-
-// 添加开始按钮事件监听
-document.getElementById('start-btn').addEventListener('click', startEffect);
-
-// 为了确保移动设备上的音乐播放，添加触摸事件监听
-document.addEventListener('touchstart', () => {
-    if (isRunning) {
-        playMusic();
+    if (isMusicPlaying) {
+        const music = document.getElementById('backgroundMusic');
+        music.pause();
+        music.currentTime = 0;
+        isMusicPlaying = false;
     }
-}, { once: true });
+    
+    // 显示开始界面
+    document.getElementById('startContainer').style.display = 'block';
+    
+    // 重置已显示图片数组
+    displayedImages = [];
+}
 
-// 处理窗口大小变化，重新定位所有消息窗口
+// 页面加载完成后初始化
+window.addEventListener('DOMContentLoaded', init);
+
+// 窗口大小变化时调整位置
 window.addEventListener('resize', () => {
-    messageWindows.forEach(window => {
-        const position = getRandomPosition(window);
-        window.style.left = `${position.x}px`;
-        window.style.top = `${position.y}px`;
+    windows.forEach(window => {
+        const width = window.offsetWidth;
+        const height = window.offsetHeight;
+        const currentX = parseFloat(window.style.left);
+        const currentY = parseFloat(window.style.top);
+        
+        // 确保窗口在可视区域内
+        const maxX = window.innerWidth - width;
+        const maxY = window.innerHeight - height;
+        const newX = Math.max(0, Math.min(currentX, maxX));
+        const newY = Math.max(0, Math.min(currentY, maxY));
+        
+        window.style.left = `${newX}px`;
+        window.style.top = `${newY}px`;
     });
 });
