@@ -1,15 +1,18 @@
+/* 全局重置 */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* 背景与字体 */
 body {
     font-family: 'Arial', sans-serif;
     overflow: hidden;
     background-color: #fff5f7;
 }
 
+/* 开始屏幕 */
 #start-screen {
     position: fixed;
     top: 0;
@@ -34,6 +37,7 @@ body {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* 开始按钮 */
 #start-btn {
     padding: 1rem 3rem;
     font-size: 1.5rem;
@@ -51,39 +55,76 @@ body {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* 表白小窗口 */
 .love-message {
     position: fixed;
     background-color: rgba(255, 182, 193, 0.9);
-    border-radius: 10px;
-    padding: 15px;
+    border-radius: 12px;
+    padding: 10px 14px;
     font-size: 16px;
     font-weight: bold;
     color: #fff;
     text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     z-index: 100;
     word-wrap: break-word;
-    max-width: 200px;
-    animation: float 3s ease-in-out infinite;
+    max-width: 220px;
+
+    /* 使用统一的浮动动画，具体时间、延迟由 JS 设置 */
+    animation-name: floatUp;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
 }
 
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+/* 浮动、飘动动画 */
+@keyframes floatUp {
+    0% {
+        transform: translate3d(0, 0, 0);
+        opacity: 0.2;
+    }
+    10% {
+        opacity: 1;
+    }
+    50% {
+        transform: translate3d(20px, -40px, 0);
+    }
+    100% {
+        transform: translate3d(-30px, -80px, 0);
+        opacity: 0.2;
+    }
 }
 
+/* 中间大图容器：只用一个，反复复用 */
 .image-container {
     position: fixed;
-    top: 50%;
     left: 50%;
+    top: 50%;
     transform: translate(-50%, -50%);
-    z-index: 200;
-    transition: opacity 1s ease-in-out;
+    max-width: 80vw;
+    max-height: 80vh;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 1s ease;
+    z-index: 999;
 }
 
 .image-container img {
-    max-width: 80vw;
-    max-height: 80vh;
-    border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 小屏手机优化一下标题大小 */
+@media (max-width: 480px) {
+    .start-container h1 {
+        font-size: 2rem;
+        padding: 0 1rem;
+    }
+
+    #start-btn {
+        font-size: 1.2rem;
+        padding: 0.8rem 2.4rem;
+    }
 }
