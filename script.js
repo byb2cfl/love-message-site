@@ -1,5 +1,5 @@
 // 配置参数
-const MAX_WINDOWS = 350;
+const MAX_WINDOWS = 520; // 修改为520个窗口
 const CREATION_INTERVAL = 100; // 毫秒
 const DURATION = 90000; // 90秒
 const IMAGE_INTERVAL = 5000; // 图片切换间隔
@@ -7,7 +7,7 @@ const IMAGE_FADE_DURATION = 1000; // 图片渐变时间
 
 // 路径配置
 const IMAGE_PATH = 'images/';
-const MAX_IMAGES = 11;
+const MAX_IMAGES = 25; // 修改为25张图片
 
 // 表白内容
 const messages = [
@@ -96,7 +96,7 @@ const textPinks = [
 ];
 
 let messageWindows = [];
-let currentImageIndex = 0;
+let displayedImages = []; // 新增：跟踪已显示的图片
 let isRunning = false;
 let imageIntervalId = null;
 let creationIntervalId = null;
@@ -174,8 +174,28 @@ function moveRandomly(element) {
     move();
 }
 
-// 显示图片
+// 显示图片（修改版：不重复随机显示）
 function showImage() {
+    // 如果所有图片都已显示过，则重置显示历史
+    if (displayedImages.length >= MAX_IMAGES) {
+        displayedImages = [];
+    }
+    
+    // 从所有图片中排除已显示的图片，得到可选图片列表
+    const availableImages = [];
+    for (let i = 1; i <= MAX_IMAGES; i++) {
+        if (!displayedImages.includes(i)) {
+            availableImages.push(i);
+        }
+    }
+    
+    // 随机选择一张未显示的图片
+    const randomIndex = Math.floor(Math.random() * availableImages.length);
+    const selectedImageIndex = availableImages[randomIndex];
+    
+    // 将选择的图片添加到已显示列表
+    displayedImages.push(selectedImageIndex);
+    
     // 移除旧图片
     const oldImageContainer = document.querySelector('.image-container');
     if (oldImageContainer) {
@@ -193,9 +213,8 @@ function showImage() {
     imageContainer.style.opacity = '0';
     
     const img = document.createElement('img');
-    const randomImageIndex = Math.floor(Math.random() * MAX_IMAGES) + 1;
-    img.src = `${IMAGE_PATH}${randomImageIndex}.jpg`;
-    img.alt = `风风的照片 ${randomImageIndex}`;
+    img.src = `${IMAGE_PATH}${selectedImageIndex}.jpg`;
+    img.alt = `风风的照片 ${selectedImageIndex}`;
     
     img.onload = () => {
         document.body.appendChild(imageContainer);
@@ -252,6 +271,9 @@ function cleanup() {
         }
     });
     messageWindows = [];
+    
+    // 重置已显示图片列表
+    displayedImages = [];
     
     // 移除图片
     const imageContainer = document.querySelector('.image-container');
