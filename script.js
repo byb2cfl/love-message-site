@@ -1,6 +1,6 @@
 // 配置参数
-const MAX_WINDOWS = 520; // 修改为520个窗口
-const CREATION_INTERVAL = 100; // 毫秒
+const MAX_WINDOWS = 320; // 修改为520个窗口
+const CREATION_INTERVAL = 200; // 毫秒
 const DURATION = 90000; // 90秒
 const IMAGE_INTERVAL = 5000; // 图片切换间隔
 const IMAGE_FADE_DURATION = 1000; // 图片渐变时间
@@ -330,4 +330,5 @@ window.addEventListener('resize', () => {
         window.style.left = `${position.x}px`;
         window.style.top = `${position.y}px`;
     });
+
 });
